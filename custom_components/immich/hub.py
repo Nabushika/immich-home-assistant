@@ -110,13 +110,34 @@ class ImmichHub:
             _LOGGER.error("Error connecting to the API: %s", exception)
             raise CannotConnect from exception
 
+    async def list_all_images(self) -> list[dict]:
+        """List all images."""
+        try:
+            async with aiohttp.ClientSession() as session:
+                url = urljoin(self.host, "/api/search/metadata")
+                headers = {"Accept": "application/json", _HEADER_API_KEY: self.api_key}
+                data = {"type": "IMAGE"}
+
+                async with session.post(url=url, headers=headers, data=data) as response:
+                    if response.status != 200:
+                        raw_result = await response.text()
+                        _LOGGER.error("Error from API: body=%s", raw_result)
+                        raise ApiError()
+
+                    images = await response.json()
+                    assets: list[dict] = images["assets"]["items"]
+                    return assets
+        except aiohttp.ClientError as exception:
+            _LOGGER.error("Error connecting to the API: %s", exception)
+            raise CannotConnect from exception
+
     async def list_favorite_images(self) -> list[dict]:
         """List all favorite images."""
         try:
             async with aiohttp.ClientSession() as session:
                 url = urljoin(self.host, "/api/search/metadata")
                 headers = {"Accept": "application/json", _HEADER_API_KEY: self.api_key}
-                data = {"isFavorite": "true"}
+                data = {"isFavorite": "true", "type": "IMAGE"}
 
                 async with session.post(url=url, headers=headers, data=data) as response:
                     if response.status != 200:
@@ -126,12 +147,7 @@ class ImmichHub:
 
                     favorites = await response.json()
                     assets: list[dict] = favorites["assets"]["items"]
-
-                    filtered_assets: list[dict] = [
-                        asset for asset in assets if asset["type"] == "IMAGE"
-                    ]
-
-                    return filtered_assets
+                    return assets
         except aiohttp.ClientError as exception:
             _LOGGER.error("Error connecting to the API: %s", exception)
             raise CannotConnect from exception

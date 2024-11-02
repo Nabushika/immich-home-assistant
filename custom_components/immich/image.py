@@ -158,6 +158,17 @@ class ImmichImageFavorite(BaseImmichImage):
         return [image["id"] for image in await self.hub.list_favorite_images()]
 
 
+class ImmichImageAll(BaseImmichImage):
+    """Image entity for Immich that displays a random image from all available images"""
+
+    _attr_unique_id = "any_image"
+    _attr_name = "Immich: Random image"
+
+    async def _refresh_available_asset_ids(self) -> list[str] | None:
+        """Refresh the list of available asset IDs."""
+        return [image["id"] for image in await self.hub.list_all_images()]
+
+
 class ImmichImageAlbum(BaseImmichImage):
     """Image entity for Immich that displays a random image from a specific album."""
 
