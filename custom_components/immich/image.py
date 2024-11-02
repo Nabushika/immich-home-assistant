@@ -35,7 +35,7 @@ async def async_setup_entry(
     )
 
     # Create entity for random favorite image
-    async_add_entities([ImmichImageFavorite(hass, hub)])
+    async_add_entities([ImmichImageFavorite(hass, hub), ImmichImageAll(hass, hub)])
 
     # Create entities for random image from each watched album
     watched_albums = config_entry.options.get(CONF_WATCHED_ALBUMS, [])
